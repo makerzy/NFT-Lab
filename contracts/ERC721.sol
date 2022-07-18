@@ -5,7 +5,7 @@ import "@openzeppelin/contracts/token/ERC721/ERC721.sol";
 import "@openzeppelin/contracts/token/ERC721/extensions/ERC721Enumerable.sol";
 import "@openzeppelin/contracts/token/ERC721/extensions/ERC721URIStorage.sol";
 import "@openzeppelin/contracts/security/Pausable.sol";
-import "@openzeppelin/contracts/access/Ownable.sol";
+import "./Ownable.sol";
 import "@openzeppelin/contracts/token/common/ERC2981.sol";
 import "@openzeppelin/contracts/token/ERC721/extensions/ERC721Burnable.sol";
 import "@openzeppelin/contracts/utils/cryptography/draft-EIP712.sol";
@@ -30,13 +30,17 @@ contract LabNFT is
             "SafeMintWithSig(address to,uint256 tokenId,string uri,uint256 nonce)"
         );
 
-    constructor() ERC721(_name, _symbol) EIP712(_name, version) {}
+    constructor() ERC721(_name, _symbol) EIP712(_name, version) {
+        _transferOwnership(_msgSender());
+    }
 
-    function pause() external onlyOwner {
+    function pause() external {
+        onlyOwner();
         _pause();
     }
 
-    function unpause() external onlyOwner {
+    function unpause() external  {
+        onlyOwner();
         _unpause();
     }
 
@@ -44,7 +48,8 @@ contract LabNFT is
         address to,
         uint256 tokenId,
         string calldata uri
-    ) external onlyOwner {
+    ) external  {
+        onlyOwner();
         _safeMint(to, tokenId);
         _setTokenRoyalty(tokenId, owner(), royalty);
         _setTokenURI(tokenId, uri);
@@ -58,7 +63,6 @@ contract LabNFT is
         bytes32 r,
         bytes32 s
     ) external {
-        // nonce[owner()] =nonce[owner()]+ 1;
         bytes32 hash = keccak256(
             abi.encode(
                 MINT_STRUCT_HASH,
@@ -77,16 +81,18 @@ contract LabNFT is
 
     function setTokenURI(uint256 tokenId, string calldata uri)
         external
-        onlyOwner
     {
+        onlyOwner();
         _setTokenURI(tokenId, uri);
     }
 
-    function setTokenRoyalty(address receivingWallet, uint256 tokenId) onlyOwner external{
+    function setTokenRoyalty(address receivingWallet, uint256 tokenId) external{
+        onlyOwner();
         _setTokenRoyalty(tokenId, receivingWallet, royalty);
     }
 
-    function updateRoyalty(uint96 _royalty) onlyOwner external{
+    function updateRoyalty(uint96 _royalty) external{
+        onlyOwner();
         royalty = _royalty;
 
     }
